@@ -162,6 +162,40 @@
             display: block;
         }
 
+        .advanced-toggle {
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .advanced-toggle a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .advanced-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .advanced-fields {
+            display: none;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .advanced-fields.show {
+            display: block;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 25px;
@@ -205,26 +239,36 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="merchantId">Merchant ID *</label>
-                <input 
-                    type="text" 
-                    id="merchantId" 
-                    name="merchantId" 
-                    placeholder="Enter your Merchant ID"
-                    required
-                >
+            <div class="advanced-toggle">
+                <a id="toggleAdvanced">▼ Advanced Options (Optional)</a>
             </div>
 
-            <div class="form-group">
-                <label for="merchantSiteId">Merchant Site ID *</label>
-                <input 
-                    type="text" 
-                    id="merchantSiteId" 
-                    name="merchantSiteId" 
-                    placeholder="Enter your Merchant Site ID"
-                    required
-                >
+            <div class="advanced-fields" id="advancedFields">
+                <p class="helper-text" style="margin-bottom: 15px;">
+                    These fields are optional. Only fill them if you need to override the values from your openOrder session.
+                </p>
+
+                <div class="form-group">
+                    <label for="merchantId">Merchant ID (Optional)</label>
+                    <input 
+                        type="text" 
+                        id="merchantId" 
+                        name="merchantId" 
+                        placeholder="Override Merchant ID (optional)"
+                    >
+                    <div class="helper-text">Leave empty to use value from sessionToken</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="merchantSiteId">Merchant Site ID (Optional)</label>
+                    <input 
+                        type="text" 
+                        id="merchantSiteId" 
+                        name="merchantSiteId" 
+                        placeholder="Override Merchant Site ID (optional)"
+                    >
+                    <div class="helper-text">Leave empty to use value from sessionToken</div>
+                </div>
             </div>
 
             <button type="submit" class="btn" id="initBtn">Initialize Checkout</button>
@@ -238,6 +282,21 @@
     </div>
 
     <script>
+        // Toggle advanced options
+        document.getElementById('toggleAdvanced').addEventListener('click', function(e) {
+            e.preventDefault();
+            const advancedFields = document.getElementById('advancedFields');
+            const isVisible = advancedFields.classList.contains('show');
+            
+            if (isVisible) {
+                advancedFields.classList.remove('show');
+                this.textContent = '▼ Advanced Options (Optional)';
+            } else {
+                advancedFields.classList.add('show');
+                this.textContent = '▲ Advanced Options (Optional)';
+            }
+        });
+
         // SimplyConnect 1.0 Integration
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -247,8 +306,8 @@
             const merchantId = document.getElementById('merchantId').value.trim();
             const merchantSiteId = document.getElementById('merchantSiteId').value.trim();
 
-            if (!sessionToken || !merchantId || !merchantSiteId) {
-                showResponse('error', 'Please fill in all required fields.');
+            if (!sessionToken) {
+                showResponse('error', 'Please enter a session token.');
                 return;
             }
 
@@ -257,51 +316,60 @@
             document.getElementById('initBtn').disabled = true;
             document.getElementById('sfc-response').style.display = 'none';
 
-            // Initialize SafeCharge Checkout
-            try {
-                sfc.initialize({
-                    env: env,
-                    merchantId: merchantId,
-                    merchantSiteId: merchantSiteId,
-                    sessionToken: sessionToken,
-                    renderTo: '#sfc-response',
-                    
-                    // Payment callback
-                    onResult: function(result) {
-                        console.log('Payment Result:', result);
-                        document.getElementById('loading').classList.remove('show');
-                        document.getElementById('initBtn').disabled = false;
+            // Build initialization config
+            const config = {
+                env: env,
+                sessionToken: sessionToken,
+                renderTo: '#sfc-response',
+                
+                // Payment callback
+                onResult: function(result) {
+                    console.log('Payment Result:', result);
+                    document.getElementById('loading').classList.remove('show');
+                    document.getElementById('initBtn').disabled = false;
 
-                        if (result.result === 'APPROVED') {
-                            showResponse('success', 
-                                '<div class="response-title">✓ Payment Approved!</div>' +
-                                '<strong>Transaction ID:</strong> ' + (result.transactionId || 'N/A') + '<br>' +
-                                '<strong>Order ID:</strong> ' + (result.orderId || 'N/A') + '<br>' +
-                                '<strong>Auth Code:</strong> ' + (result.authCode || 'N/A') + '<br>' +
-                                '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
-                            );
-                        } else {
-                            showResponse('error', 
-                                '<div class="response-title">✗ Payment Failed</div>' +
-                                '<strong>Status:</strong> ' + (result.result || 'DECLINED') + '<br>' +
-                                '<strong>Reason:</strong> ' + (result.errorDescription || result.reason || 'Unknown error') + '<br>' +
-                                '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
-                            );
-                        }
-                    },
-
-                    // Error callback
-                    onError: function(error) {
-                        console.error('Payment Error:', error);
-                        document.getElementById('loading').classList.remove('show');
-                        document.getElementById('initBtn').disabled = false;
+                    if (result.result === 'APPROVED') {
+                        showResponse('success', 
+                            '<div class="response-title">✓ Payment Approved!</div>' +
+                            '<strong>Transaction ID:</strong> ' + (result.transactionId || 'N/A') + '<br>' +
+                            '<strong>Order ID:</strong> ' + (result.orderId || 'N/A') + '<br>' +
+                            '<strong>Auth Code:</strong> ' + (result.authCode || 'N/A') + '<br>' +
+                            '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
+                        );
+                    } else {
                         showResponse('error', 
-                            '<div class="response-title">✗ Error Occurred</div>' +
-                            '<strong>Message:</strong> ' + (error.message || error.errorDescription || 'An error occurred during checkout') + '<br>' +
-                            '<div class="response-data">' + JSON.stringify(error, null, 2) + '</div>'
+                            '<div class="response-title">✗ Payment Failed</div>' +
+                            '<strong>Status:</strong> ' + (result.result || 'DECLINED') + '<br>' +
+                            '<strong>Reason:</strong> ' + (result.errorDescription || result.reason || 'Unknown error') + '<br>' +
+                            '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
                         );
                     }
-                });
+                },
+
+                // Error callback
+                onError: function(error) {
+                    console.error('Payment Error:', error);
+                    document.getElementById('loading').classList.remove('show');
+                    document.getElementById('initBtn').disabled = false;
+                    showResponse('error', 
+                        '<div class="response-title">✗ Error Occurred</div>' +
+                        '<strong>Message:</strong> ' + (error.message || error.errorDescription || 'An error occurred during checkout') + '<br>' +
+                        '<div class="response-data">' + JSON.stringify(error, null, 2) + '</div>'
+                    );
+                }
+            };
+
+            // Only add merchantId and merchantSiteId if provided (override values)
+            if (merchantId) {
+                config.merchantId = merchantId;
+            }
+            if (merchantSiteId) {
+                config.merchantSiteId = merchantSiteId;
+            }
+
+            // Initialize SafeCharge Checkout
+            try {
+                sfc.initialize(config);
 
                 // Open the checkout
                 sfc.checkout();
@@ -313,7 +381,7 @@
                 showResponse('error', 
                     '<div class="response-title">✗ Initialization Failed</div>' +
                     '<strong>Error:</strong> ' + error.message + '<br>' +
-                    'Please check your session token and credentials.'
+                    'Please check your session token and try again.'
                 );
             }
         });
