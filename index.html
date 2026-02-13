@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuvei SimplyConnect 1.0 - Checkout Test</title>
+    <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #sfc-response {
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        #sfc-response.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        #sfc-response.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .response-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .response-data {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nuvei SimplyConnect 1.0</h1>
+        <p class="subtitle">Checkout Integration Test</p>
+
+        <div class="info-box">
+            <strong>Instructions:</strong>
+            1. Perform an openOrder API call on your backend<br>
+            2. Paste the sessionToken you received into the field below<br>
+            3. Click "Initialize Checkout" to load the payment form
+        </div>
+
+        <form id="checkout-form">
+            <div class="form-group">
+                <label for="sessionToken">Session Token *</label>
+                <input 
+                    type="text" 
+                    id="sessionToken" 
+                    name="sessionToken" 
+                    placeholder="Paste your sessionToken here"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="env">Environment *</label>
+                <select id="env" name="env" required>
+                    <option value="prod">Production</option>
+                    <option value="int" selected>Integration (Test)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="merchantId">Merchant ID *</label>
+                <input 
+                    type="text" 
+                    id="merchantId" 
+                    name="merchantId" 
+                    placeholder="Enter your Merchant ID"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="merchantSiteId">Merchant Site ID *</label>
+                <input 
+                    type="text" 
+                    id="merchantSiteId" 
+                    name="merchantSiteId" 
+                    placeholder="Enter your Merchant Site ID"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn" id="initBtn">Initialize Checkout</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <p>Loading checkout...</p>
+        </div>
+
+        <div id="sfc-response"></div>
+    </div>
+
+    <script>
+        // SimplyConnect 1.0 Integration
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const sessionToken = document.getElementById('sessionToken').value.trim();
+            const env = document.getElementById('env').value;
+            const merchantId = document.getElementById('merchantId').value.trim();
+            const merchantSiteId = document.getElementById('merchantSiteId').value.trim();
+
+            if (!sessionToken || !merchantId || !merchantSiteId) {
+                showResponse('error', 'Please fill in all required fields.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('initBtn').disabled = true;
+            document.getElementById('sfc-response').style.display = 'none';
+
+            // Initialize SafeCharge Checkout
+            try {
+                sfc.initialize({
+                    env: env,
+                    merchantId: merchantId,
+                    merchantSiteId: merchantSiteId,
+                    sessionToken: sessionToken,
+                    renderTo: '#sfc-response',
+                    
+                    // Payment callback
+                    onResult: function(result) {
+                        console.log('Payment Result:', result);
+                        document.getElementById('loading').classList.remove('show');
+                        document.getElementById('initBtn').disabled = false;
+
+                        if (result.result === 'APPROVED') {
+                            showResponse('success', 
+                                '<div class="response-title">✓ Payment Approved!</div>' +
+                                '<strong>Transaction ID:</strong> ' + (result.transactionId || 'N/A') + '<br>' +
+                                '<strong>Order ID:</strong> ' + (result.orderId || 'N/A') + '<br>' +
+                                '<strong>Auth Code:</strong> ' + (result.authCode || 'N/A') + '<br>' +
+                                '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
+                            );
+                        } else {
+                            showResponse('error', 
+                                '<div class="response-title">✗ Payment Failed</div>' +
+                                '<strong>Status:</strong> ' + (result.result || 'DECLINED') + '<br>' +
+                                '<strong>Reason:</strong> ' + (result.errorDescription || result.reason || 'Unknown error') + '<br>' +
+                                '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
+                            );
+                        }
+                    },
+
+                    // Error callback
+                    onError: function(error) {
+                        console.error('Payment Error:', error);
+                        document.getElementById('loading').classList.remove('show');
+                        document.getElementById('initBtn').disabled = false;
+                        showResponse('error', 
+                            '<div class="response-title">✗ Error Occurred</div>' +
+                            '<strong>Message:</strong> ' + (error.message || error.errorDescription || 'An error occurred during checkout') + '<br>' +
+                            '<div class="response-data">' + JSON.stringify(error, null, 2) + '</div>'
+                        );
+                    }
+                });
+
+                // Open the checkout
+                sfc.checkout();
+
+            } catch (error) {
+                console.error('Initialization Error:', error);
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('initBtn').disabled = false;
+                showResponse('error', 
+                    '<div class="response-title">✗ Initialization Failed</div>' +
+                    '<strong>Error:</strong> ' + error.message + '<br>' +
+                    'Please check your session token and credentials.'
+                );
+            }
+        });
+
+        function showResponse(type, message) {
+            const responseDiv = document.getElementById('sfc-response');
+            responseDiv.className = type;
+            responseDiv.innerHTML = message;
+            responseDiv.style.display = 'block';
+        }
+
+        // Pre-fill values if available in URL parameters
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('sessionToken')) {
+                document.getElementById('sessionToken').value = urlParams.get('sessionToken');
+            }
+            if (urlParams.get('merchantId')) {
+                document.getElementById('merchantId').value = urlParams.get('merchantId');
+            }
+            if (urlParams.get('merchantSiteId')) {
+                document.getElementById('merchantSiteId').value = urlParams.get('merchantSiteId');
+            }
+            if (urlParams.get('env')) {
+                document.getElementById('env').value = urlParams.get('env');
+            }
+        });
+    </script>
+</body>
+</html>
