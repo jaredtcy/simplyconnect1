@@ -111,6 +111,16 @@
             margin-bottom: 5px;
         }
 
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #856404;
+        }
+
         .advanced-toggle {
             text-align: center;
             margin-top: 15px;
@@ -207,6 +217,10 @@
         <h1>Nuvei SimplyConnect 1.0</h1>
         <p class="subtitle">Checkout Integration Test</p>
 
+        <div class="warning-box" id="sdkWarning">
+            ⚠️ <strong>Note:</strong> SimplyConnect 1.0 is a legacy version. If the SDK fails to load, consider using SimplyConnect 2.0 which you already have working.
+        </div>
+
         <div class="info-box">
             <strong>Instructions:</strong>
             1. Perform an openOrder API call on your backend<br>
@@ -276,10 +290,54 @@
         <div id="result-box" class="result-box"></div>
     </div>
 
-    <!-- Load SafeCharge SDK -->
-    <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js"></script>
-
     <script>
+        // Dynamically load the SDK with better error handling
+        (function() {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js';
+            script.crossOrigin = 'anonymous';
+            
+            script.onload = function() {
+                console.log('SDK script loaded');
+                document.getElementById('sdkWarning').style.display = 'none';
+                
+                // Check if sfc is available after a short delay
+                setTimeout(function() {
+                    if (typeof sfc === 'undefined') {
+                        showResult('error', 
+                            '<div class="response-title">✗ SDK Not Available</div>' +
+                            'The SDK script loaded but the sfc object is not available. This may be due to:<br><br>' +
+                            '• The SimplyConnect 1.0 SDK being deprecated by Nuvei<br>' +
+                            '• Compatibility issues with GitHub Pages<br>' +
+                            '• Browser security restrictions<br><br>' +
+                            '<strong>Recommendation:</strong> Use SimplyConnect 2.0 instead, which you already have working at:<br>' +
+                            '<a href="https://jaredtcy.github.io/simplyconnect2/" target="_blank" style="color: #667eea;">https://jaredtcy.github.io/simplyconnect2/</a>'
+                        );
+                        document.getElementById('initBtn').disabled = true;
+                    } else {
+                        console.log('sfc object is available');
+                    }
+                }, 500);
+            };
+            
+            script.onerror = function() {
+                console.error('Failed to load SDK script');
+                showResult('error', 
+                    '<div class="response-title">✗ SDK Load Failed</div>' +
+                    'Failed to load the SafeCharge SDK from the CDN. Possible reasons:<br><br>' +
+                    '• The CDN URL may no longer be valid<br>' +
+                    '• Network connectivity issues<br>' +
+                    '• SimplyConnect 1.0 may have been deprecated<br><br>' +
+                    '<strong>Recommendation:</strong> Use SimplyConnect 2.0 instead:<br>' +
+                    '<a href="https://jaredtcy.github.io/simplyconnect2/" target="_blank" style="color: #667eea;">https://jaredtcy.github.io/simplyconnect2/</a>'
+                );
+                document.getElementById('initBtn').disabled = true;
+            };
+            
+            document.head.appendChild(script);
+        })();
+
         // Toggle advanced options
         document.getElementById('toggleAdvanced').addEventListener('click', function(e) {
             e.preventDefault();
@@ -298,6 +356,15 @@
         // SimplyConnect 1.0 Integration
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Check if SDK is loaded
+            if (typeof sfc === 'undefined') {
+                showResult('error', 
+                    '<div class="response-title">✗ SDK Not Available</div>' +
+                    'The SafeCharge SDK is not loaded. Please refresh the page or use SimplyConnect 2.0 instead.'
+                );
+                return;
+            }
 
             const sessionToken = document.getElementById('sessionToken').value.trim();
             const env = document.getElementById('env').value;
@@ -380,7 +447,7 @@
                 sfc.checkout();
                 
                 // Re-enable button after successful initialization
-                setTimeout(() => {
+                setTimeout(function() {
                     document.getElementById('initBtn').disabled = false;
                     document.getElementById('initBtn').textContent = 'Initialize Checkout';
                 }, 1000);
@@ -422,14 +489,6 @@
             }
             if (urlParams.get('env')) {
                 document.getElementById('env').value = urlParams.get('env');
-            }
-
-            // Check if SDK loaded
-            if (typeof sfc === 'undefined') {
-                showResult('error', 
-                    '<div class="response-title">✗ SDK Load Failed</div>' +
-                    'The SafeCharge SDK failed to load. Please check your internet connection and refresh the page.'
-                );
             }
         });
     </script>
