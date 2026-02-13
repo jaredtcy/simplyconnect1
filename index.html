@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuvei SimplyConnect 1.0 - Checkout Test</title>
-    <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js"></script>
     <style>
         * {
             margin: 0;
@@ -120,6 +119,13 @@
             display: block;
         }
 
+        #sfc-response.warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            display: block;
+        }
+
         .info-box {
             background-color: #e7f3ff;
             border-left: 4px solid #2196F3;
@@ -149,6 +155,8 @@
             font-size: 12px;
             word-break: break-all;
             margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .loading {
@@ -196,6 +204,29 @@
             margin-top: 5px;
         }
 
+        .sdk-status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .sdk-status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .sdk-status.ready {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .sdk-status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 25px;
@@ -211,6 +242,10 @@
     <div class="container">
         <h1>Nuvei SimplyConnect 1.0</h1>
         <p class="subtitle">Checkout Integration Test</p>
+
+        <div id="sdkStatus" class="sdk-status loading">
+            ⏳ Loading SafeCharge SDK...
+        </div>
 
         <div class="info-box">
             <strong>Instructions:</strong>
@@ -271,7 +306,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn" id="initBtn">Initialize Checkout</button>
+            <button type="submit" class="btn" id="initBtn" disabled>Initialize Checkout</button>
         </form>
 
         <div class="loading" id="loading">
@@ -282,6 +317,56 @@
     </div>
 
     <script>
+        let sdkLoaded = false;
+
+        // Load the SafeCharge SDK
+        function loadSafeChargeSDK() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js';
+                script.async = true;
+                
+                script.onload = () => {
+                    console.log('SafeCharge SDK loaded successfully');
+                    // Wait a bit to ensure SDK is fully initialized
+                    setTimeout(() => {
+                        if (typeof sfc !== 'undefined') {
+                            sdkLoaded = true;
+                            resolve();
+                        } else {
+                            reject(new Error('SDK loaded but sfc object not available'));
+                        }
+                    }, 500);
+                };
+                
+                script.onerror = () => {
+                    reject(new Error('Failed to load SafeCharge SDK script'));
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        // Initialize SDK status
+        loadSafeChargeSDK()
+            .then(() => {
+                const statusDiv = document.getElementById('sdkStatus');
+                statusDiv.className = 'sdk-status ready';
+                statusDiv.innerHTML = '✓ SafeCharge SDK Ready';
+                document.getElementById('initBtn').disabled = false;
+            })
+            .catch((error) => {
+                console.error('SDK Load Error:', error);
+                const statusDiv = document.getElementById('sdkStatus');
+                statusDiv.className = 'sdk-status error';
+                statusDiv.innerHTML = '✗ Failed to load SafeCharge SDK. Please refresh the page.';
+                showResponse('error', 
+                    '<div class="response-title">✗ SDK Load Failed</div>' +
+                    'Could not load the SafeCharge SDK. Please check your internet connection and refresh the page.<br><br>' +
+                    '<strong>Error:</strong> ' + error.message
+                );
+            });
+
         // Toggle advanced options
         document.getElementById('toggleAdvanced').addEventListener('click', function(e) {
             e.preventDefault();
@@ -300,6 +385,11 @@
         // SimplyConnect 1.0 Integration
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            if (!sdkLoaded) {
+                showResponse('error', 'SafeCharge SDK is not loaded yet. Please wait or refresh the page.');
+                return;
+            }
 
             const sessionToken = document.getElementById('sessionToken').value.trim();
             const env = document.getElementById('env').value;
@@ -366,6 +456,8 @@
             if (merchantSiteId) {
                 config.merchantSiteId = merchantSiteId;
             }
+
+            console.log('Initializing with config:', config);
 
             // Initialize SafeCharge Checkout
             try {
