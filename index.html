@@ -96,36 +96,6 @@
             transform: none;
         }
 
-        #sfc-response {
-            margin-top: 30px;
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 14px;
-            line-height: 1.6;
-            display: none;
-        }
-
-        #sfc-response.success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            display: block;
-        }
-
-        #sfc-response.error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            display: block;
-        }
-
-        #sfc-response.warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            display: block;
-        }
-
         .info-box {
             background-color: #e7f3ff;
             border-left: 4px solid #2196F3;
@@ -139,35 +109,6 @@
         .info-box strong {
             display: block;
             margin-bottom: 5px;
-        }
-
-        .response-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .response-data {
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 10px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin-top: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-        }
-
-        .loading.show {
-            display: block;
         }
 
         .advanced-toggle {
@@ -204,27 +145,50 @@
             margin-top: 5px;
         }
 
-        .sdk-status {
-            padding: 10px;
-            margin-bottom: 20px;
+        #checkout-container {
+            margin-top: 30px;
+            min-height: 400px;
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 15px;
             border-radius: 6px;
-            font-size: 13px;
-            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
         }
 
-        .sdk-status.loading {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .sdk-status.ready {
+        .result-box.success {
             background-color: #d4edda;
+            border: 1px solid #c3e6cb;
             color: #155724;
+            display: block;
         }
 
-        .sdk-status.error {
+        .result-box.error {
             background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
             color: #721c24;
+            display: block;
+        }
+
+        .response-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .response-data {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         @media (max-width: 600px) {
@@ -242,10 +206,6 @@
     <div class="container">
         <h1>Nuvei SimplyConnect 1.0</h1>
         <p class="subtitle">Checkout Integration Test</p>
-
-        <div id="sdkStatus" class="sdk-status loading">
-            ⏳ Loading SafeCharge SDK...
-        </div>
 
         <div class="info-box">
             <strong>Instructions:</strong>
@@ -304,106 +264,22 @@
                     >
                     <div class="helper-text">Leave empty to use value from sessionToken</div>
                 </div>
-
-                <div class="form-group">
-                    <label for="sdkUrl">Custom SDK URL (Optional)</label>
-                    <input 
-                        type="text" 
-                        id="sdkUrl" 
-                        name="sdkUrl" 
-                        placeholder="Enter custom SDK URL if needed"
-                    >
-                    <div class="helper-text">Leave empty to use default CDN URLs</div>
-                </div>
             </div>
 
-            <button type="submit" class="btn" id="initBtn" disabled>Initialize Checkout</button>
+            <button type="submit" class="btn" id="initBtn">Initialize Checkout</button>
         </form>
 
-        <div class="loading" id="loading">
-            <p>Loading checkout...</p>
-        </div>
+        <!-- Checkout will render here -->
+        <div id="checkout-container"></div>
 
-        <div id="sfc-response"></div>
+        <!-- Result display -->
+        <div id="result-box" class="result-box"></div>
     </div>
 
+    <!-- Load SafeCharge SDK -->
+    <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js"></script>
+
     <script>
-        let sdkLoaded = false;
-
-        // Multiple CDN URLs to try
-        const SDK_URLS = [
-            'https://cdn.safecharge.com/safecharge_resources/v1/websdk/sfc.js',
-            'https://cdn.safecharge.com/safecharge_resources/websdk/sfc.js',
-            'https://secure.safecharge.com/checkout/safecharge_resources/v1/websdk/sfc.js'
-        ];
-
-        // Load the SafeCharge SDK with fallback URLs
-        function loadSafeChargeSDK(urls = SDK_URLS, index = 0) {
-            return new Promise((resolve, reject) => {
-                if (index >= urls.length) {
-                    reject(new Error('All SDK URLs failed to load'));
-                    return;
-                }
-
-                const currentUrl = urls[index];
-                console.log(`Attempting to load SDK from: ${currentUrl}`);
-                
-                const script = document.createElement('script');
-                script.src = currentUrl;
-                script.async = true;
-                
-                script.onload = () => {
-                    console.log(`SDK script loaded from: ${currentUrl}`);
-                    // Wait for SDK to initialize
-                    setTimeout(() => {
-                        if (typeof sfc !== 'undefined') {
-                            console.log('sfc object is available');
-                            sdkLoaded = true;
-                            resolve(currentUrl);
-                        } else {
-                            console.warn(`SDK loaded but sfc object not available from ${currentUrl}, trying next URL...`);
-                            // Try next URL
-                            loadSafeChargeSDK(urls, index + 1).then(resolve).catch(reject);
-                        }
-                    }, 1000);
-                };
-                
-                script.onerror = () => {
-                    console.error(`Failed to load SDK from: ${currentUrl}`);
-                    // Try next URL
-                    loadSafeChargeSDK(urls, index + 1).then(resolve).catch(reject);
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
-
-        // Initialize SDK status
-        loadSafeChargeSDK()
-            .then((successUrl) => {
-                console.log('SDK loaded successfully from:', successUrl);
-                const statusDiv = document.getElementById('sdkStatus');
-                statusDiv.className = 'sdk-status ready';
-                statusDiv.innerHTML = '✓ SafeCharge SDK Ready';
-                document.getElementById('initBtn').disabled = false;
-            })
-            .catch((error) => {
-                console.error('SDK Load Error:', error);
-                const statusDiv = document.getElementById('sdkStatus');
-                statusDiv.className = 'sdk-status error';
-                statusDiv.innerHTML = '✗ Failed to load SafeCharge SDK. The v1 SDK may no longer be available.';
-                showResponse('error', 
-                    '<div class="response-title">✗ SDK Load Failed</div>' +
-                    'Could not load the SafeCharge SDK from any CDN URL.<br><br>' +
-                    '<strong>Possible reasons:</strong><br>' +
-                    '• The SimplyConnect v1 SDK may have been deprecated<br>' +
-                    '• Network connectivity issues<br>' +
-                    '• CORS restrictions<br><br>' +
-                    '<strong>Suggestion:</strong> Try using SimplyConnect 2.0 instead, or contact Nuvei support for the correct v1 SDK URL.<br><br>' +
-                    'If you have a custom SDK URL, enter it in Advanced Options and refresh the page.'
-                );
-            });
-
         // Toggle advanced options
         document.getElementById('toggleAdvanced').addEventListener('click', function(e) {
             e.preventDefault();
@@ -423,48 +299,47 @@
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            if (!sdkLoaded) {
-                showResponse('error', 'SafeCharge SDK is not loaded. Please refresh the page or check the SDK URL.');
-                return;
-            }
-
             const sessionToken = document.getElementById('sessionToken').value.trim();
             const env = document.getElementById('env').value;
             const merchantId = document.getElementById('merchantId').value.trim();
             const merchantSiteId = document.getElementById('merchantSiteId').value.trim();
 
             if (!sessionToken) {
-                showResponse('error', 'Please enter a session token.');
+                showResult('error', 'Please enter a session token.');
                 return;
             }
 
-            // Show loading
-            document.getElementById('loading').classList.add('show');
+            // Clear previous results
+            document.getElementById('result-box').style.display = 'none';
+            document.getElementById('checkout-container').innerHTML = '';
+
+            // Disable button during initialization
             document.getElementById('initBtn').disabled = true;
-            document.getElementById('sfc-response').style.display = 'none';
+            document.getElementById('initBtn').textContent = 'Initializing...';
 
             // Build initialization config
             const config = {
                 env: env,
                 sessionToken: sessionToken,
-                renderTo: '#sfc-response',
+                renderTo: '#checkout-container',
                 
-                // Payment callback
+                // Payment result callback
                 onResult: function(result) {
                     console.log('Payment Result:', result);
-                    document.getElementById('loading').classList.remove('show');
                     document.getElementById('initBtn').disabled = false;
+                    document.getElementById('initBtn').textContent = 'Initialize Checkout';
 
                     if (result.result === 'APPROVED') {
-                        showResponse('success', 
+                        showResult('success', 
                             '<div class="response-title">✓ Payment Approved!</div>' +
                             '<strong>Transaction ID:</strong> ' + (result.transactionId || 'N/A') + '<br>' +
                             '<strong>Order ID:</strong> ' + (result.orderId || 'N/A') + '<br>' +
                             '<strong>Auth Code:</strong> ' + (result.authCode || 'N/A') + '<br>' +
+                            '<strong>Payment Method:</strong> ' + (result.paymentMethod || 'N/A') + '<br>' +
                             '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
                         );
                     } else {
-                        showResponse('error', 
+                        showResult('error', 
                             '<div class="response-title">✗ Payment Failed</div>' +
                             '<strong>Status:</strong> ' + (result.result || 'DECLINED') + '<br>' +
                             '<strong>Reason:</strong> ' + (result.errorDescription || result.reason || 'Unknown error') + '<br>' +
@@ -476,9 +351,10 @@
                 // Error callback
                 onError: function(error) {
                     console.error('Payment Error:', error);
-                    document.getElementById('loading').classList.remove('show');
                     document.getElementById('initBtn').disabled = false;
-                    showResponse('error', 
+                    document.getElementById('initBtn').textContent = 'Initialize Checkout';
+                    
+                    showResult('error', 
                         '<div class="response-title">✗ Error Occurred</div>' +
                         '<strong>Message:</strong> ' + (error.message || error.errorDescription || 'An error occurred during checkout') + '<br>' +
                         '<div class="response-data">' + JSON.stringify(error, null, 2) + '</div>'
@@ -494,32 +370,42 @@
                 config.merchantSiteId = merchantSiteId;
             }
 
-            console.log('Initializing with config:', config);
+            console.log('Initializing SimplyConnect with config:', config);
 
             // Initialize SafeCharge Checkout
             try {
                 sfc.initialize(config);
-
+                
                 // Open the checkout
                 sfc.checkout();
+                
+                // Re-enable button after successful initialization
+                setTimeout(() => {
+                    document.getElementById('initBtn').disabled = false;
+                    document.getElementById('initBtn').textContent = 'Initialize Checkout';
+                }, 1000);
 
             } catch (error) {
                 console.error('Initialization Error:', error);
-                document.getElementById('loading').classList.remove('show');
                 document.getElementById('initBtn').disabled = false;
-                showResponse('error', 
+                document.getElementById('initBtn').textContent = 'Initialize Checkout';
+                
+                showResult('error', 
                     '<div class="response-title">✗ Initialization Failed</div>' +
                     '<strong>Error:</strong> ' + error.message + '<br>' +
-                    'Please check your session token and try again.'
+                    'Please check your session token and credentials.'
                 );
             }
         });
 
-        function showResponse(type, message) {
-            const responseDiv = document.getElementById('sfc-response');
-            responseDiv.className = type;
-            responseDiv.innerHTML = message;
-            responseDiv.style.display = 'block';
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result-box');
+            resultDiv.className = 'result-box ' + type;
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+            
+            // Scroll to result
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         // Pre-fill values if available in URL parameters
@@ -536,6 +422,14 @@
             }
             if (urlParams.get('env')) {
                 document.getElementById('env').value = urlParams.get('env');
+            }
+
+            // Check if SDK loaded
+            if (typeof sfc === 'undefined') {
+                showResult('error', 
+                    '<div class="response-title">✗ SDK Load Failed</div>' +
+                    'The SafeCharge SDK failed to load. Please check your internet connection and refresh the page.'
+                );
             }
         });
     </script>
