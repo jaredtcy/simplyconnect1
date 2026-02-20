@@ -1,489 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuvei SimplyConnect 1.0 - Checkout Test</title>
-    <script src="https://cdn.safecharge.com/safecharge_resources/v1/checkout/checkout.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nuvei Simply Connect Demo</title>
+  <!-- Simply Connect JS library -->
+  <script src="https://cdn.safecharge.com/safecharge_resources/v1/checkout/checkout.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+    .page {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 680px) {
+      .page { grid-template-columns: 1fr; }
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    /* --- Left Panel: Order Config --- */
+    .config-panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .config-panel h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .config-panel .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 3px 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #6c63ff;
+      background: #fff;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .btn-pay {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6c63ff, #48c6ef);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+    .btn-pay:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .header {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            margin-bottom: 30px;
-        }
+    .status-box {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+    .status-box.info    { background:#e8f4fd; color:#0c5460; border:1px solid #bee5eb; }
+    .status-box.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .status-box.error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .status-box.show    { display: block; }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
+    /* --- Right Panel: Checkout Container --- */
+    .checkout-panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .checkout-panel h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .checkout-panel .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+    #checkout {
+      width: 100%;
+      min-height: 480px;
+      border: 2px dashed #e0e0e0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+      transition: border-color 0.3s;
+    }
+    #checkout.active {
+      border-color: #6c63ff;
+      border-style: solid;
+    }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+    /* Result display */
+    #result-area {
+      margin-top: 16px;
+      display: none;
+    }
+    #result-area.show { display: block; }
+    #result-area pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 11px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .result-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
 
-        .info-box {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #333;
-        }
-
-        .info-box strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .checkout-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            min-height: 500px;
-        }
-
-        .result-box {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin-top: 30px;
-            display: none;
-        }
-
-        .result-box.success {
-            border-left: 4px solid #28a745;
-        }
-
-        .result-box.error {
-            border-left: 4px solid #dc3545;
-        }
-
-        .response-title {
-            font-weight: 600;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .response-data {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin-top: 10px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .advanced-toggle {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .advanced-toggle a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .advanced-toggle a:hover {
-            text-decoration: underline;
-        }
-
-        .advanced-fields {
-            display: none;
-            border-top: 1px solid #e0e0e0;
-            padding-top: 20px;
-            margin-top: 20px;
-        }
-
-        .advanced-fields.show {
-            display: block;
-        }
-
-        .helper-text {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .header, .form-container, .checkout-container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-        }
-    </style>
+    hr { border: none; border-top: 1px solid #f0f0f0; margin: 16px 0; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+    }
+  </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="header">
-            <h1>Nuvei SimplyConnect 1.0</h1>
-            <p class="subtitle">Checkout Integration Test</p>
+<div class="page">
 
-            <div class="info-box">
-                <strong>Instructions:</strong>
-                1. Perform an openOrder API call on your backend<br>
-                2. Paste the sessionToken you received below<br>
-                3. Enter your Merchant ID and Merchant Site ID<br>
-                4. Click "Initialize Checkout" to load the payment form
-            </div>
-        </div>
+  <!-- LEFT: Config Panel -->
+  <div class="config-panel">
+    <h2>Order Configuration</h2>
+    <p class="subtitle">Fill in your credentials and order details, then click Pay.</p>
+    <div class="badge">⚠️ Use sandbox credentials only – never expose live secret keys</div>
 
-        <div class="form-container">
-            <form id="checkout-form">
-                <div class="form-group">
-                    <label for="session">Session Token *</label>
-                    <input 
-                        type="text" 
-                        id="session" 
-                        name="session" 
-                        placeholder="Paste your sessionToken here"
-                        required
-                    >
-                </div>
+    <div class="section-title">Merchant Credentials</div>
+    <label>Merchant ID</label>
+    <input id="merchantId" type="text" placeholder="e.g. 427583496191624621" />
 
-                <div class="form-group">
-                    <label for="merchantId">Merchant ID *</label>
-                    <input 
-                        type="text" 
-                        id="merchantId" 
-                        name="merchantId" 
-                        placeholder="Enter your Merchant ID"
-                        required
-                    >
-                </div>
+    <label>Merchant Site ID</label>
+    <input id="merchantSiteId" type="text" placeholder="e.g. 142033" />
 
-                <div class="form-group">
-                    <label for="merchantSiteId">Merchant Site ID *</label>
-                    <input 
-                        type="text" 
-                        id="merchantSiteId" 
-                        name="merchantSiteId" 
-                        placeholder="Enter your Merchant Site ID"
-                        required
-                    >
-                </div>
+    <label>Session Token</label>
+    <input id="sessionToken" type="text" placeholder="Paste token from /openOrder response" />
 
-                <div class="form-group">
-                    <label for="env">Environment *</label>
-                    <select id="env" name="env" required>
-                        <option value="prod">Production</option>
-                        <option value="test" selected>Test/Integration</option>
-                    </select>
-                </div>
+    <hr />
+    <div class="section-title">Order Details</div>
 
-                <div class="advanced-toggle">
-                    <a id="toggleAdvanced">▼ Optional Settings</a>
-                </div>
-
-                <div class="advanced-fields" id="advancedFields">
-                    <div class="form-group">
-                        <label for="amount">Amount</label>
-                        <input 
-                            type="number" 
-                            id="amount" 
-                            name="amount" 
-                            placeholder="135"
-                            step="0.01"
-                        >
-                        <div class="helper-text">Default: 135</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="currency">Currency</label>
-                        <input 
-                            type="text" 
-                            id="currency" 
-                            name="currency" 
-                            placeholder="USD"
-                            maxlength="3"
-                        >
-                        <div class="helper-text">Default: USD (3-letter code)</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="country">Country</label>
-                        <input 
-                            type="text" 
-                            id="country" 
-                            name="country" 
-                            placeholder="US"
-                            maxlength="2"
-                        >
-                        <div class="helper-text">Default: US (2-letter code)</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input 
-                            type="text" 
-                            id="fullName" 
-                            name="fullName" 
-                            placeholder="John Smith"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            placeholder="john.smith@email.com"
-                        >
-                    </div>
-                </div>
-
-                <button type="submit" class="btn" id="initBtn">Initialize Checkout</button>
-            </form>
-        </div>
-
-        <div class="checkout-container" id="checkoutContainer"></div>
-
-        <div class="result-box" id="resultBox"></div>
+    <div class="row">
+      <div>
+        <label>Amount</label>
+        <input id="amount" type="number" value="10.00" step="0.01" min="0.01" />
+      </div>
+      <div>
+        <label>Currency</label>
+        <select id="currency">
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="GBP">GBP</option>
+          <option value="CAD">CAD</option>
+          <option value="AUD">AUD</option>
+          <option value="SGD">SGD</option>
+        </select>
+      </div>
     </div>
 
-    <script>
-        // Toggle advanced options
-        document.getElementById('toggleAdvanced').addEventListener('click', function(e) {
-            e.preventDefault();
-            const advancedFields = document.getElementById('advancedFields');
-            const isVisible = advancedFields.classList.contains('show');
-            
-            if (isVisible) {
-                advancedFields.classList.remove('show');
-                this.textContent = '▼ Optional Settings';
-            } else {
-                advancedFields.classList.add('show');
-                this.textContent = '▲ Optional Settings';
-            }
-        });
+    <label>Customer Name</label>
+    <input id="fullName" type="text" value="John Doe" />
 
-        // Initialize checkout
-        document.getElementById('checkout-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+    <label>Customer Email</label>
+    <input id="email" type="email" value="[email protected]" />
 
-            // Check if checkout function is available
-            if (typeof checkout === 'undefined') {
-                showResult('error', 'Checkout SDK not loaded. Please refresh the page.');
-                return;
-            }
+    <label>Country</label>
+    <select id="country">
+      <option value="US">United States (US)</option>
+      <option value="GB">United Kingdom (GB)</option>
+      <option value="DE">Germany (DE)</option>
+      <option value="SG">Singapore (SG)</option>
+      <option value="AU">Australia (AU)</option>
+      <option value="CA">Canada (CA)</option>
+    </select>
 
-            // Get form values
-            const sessionToken = document.getElementById('session').value.trim();
-            const merchantId = document.getElementById('merchantId').value.trim();
-            const merchantSiteId = document.getElementById('merchantSiteId').value.trim();
-            const env = document.getElementById('env').value;
-            const amount = document.getElementById('amount').value.trim() || '135';
-            const currency = document.getElementById('currency').value.trim() || 'USD';
-            const country = document.getElementById('country').value.trim() || 'US';
-            const fullName = document.getElementById('fullName').value.trim() || 'John Smith';
-            const email = document.getElementById('email').value.trim() || 'customer@email.com';
+    <label>Environment</label>
+    <select id="env">
+      <option value="int">Integration / Sandbox (int)</option>
+      <option value="prod">Production (prod)</option>
+    </select>
 
-            if (!sessionToken || !merchantId || !merchantSiteId) {
-                showResult('error', 'Please fill in all required fields (Session Token, Merchant ID, Merchant Site ID).');
-                return;
-            }
+    <button class="btn-pay" id="payBtn" onclick="launchCheckout()">
+      🚀 Launch Simply Connect
+    </button>
 
-            // Clear previous checkout and results
-            document.getElementById('checkoutContainer').innerHTML = 'Initializing checkout...';
-            document.getElementById('resultBox').style.display = 'none';
+    <div class="status-box" id="statusBox"></div>
+  </div>
 
-            // Disable button
-            document.getElementById('initBtn').disabled = true;
-            document.getElementById('initBtn').textContent = 'Initializing...';
+  <!-- RIGHT: Checkout Panel -->
+  <div class="checkout-panel">
+    <h2>Payment Form</h2>
+    <p class="subtitle">The Simply Connect UI will render here after clicking Launch.</p>
+    <div id="checkout">
+      <div>
+        <div style="font-size:40px;margin-bottom:12px;">💳</div>
+        <div>Simply Connect will<br/>render here</div>
+      </div>
+    </div>
+    <div id="result-area">
+      <div class="result-label">Payment Result</div>
+      <pre id="result-json"></pre>
+    </div>
+  </div>
 
-            // Result callback
-            const onResult = function(result) {
-                console.log('Payment Result:', result);
-                document.getElementById('initBtn').disabled = false;
-                document.getElementById('initBtn').textContent = 'Initialize Checkout';
+</div>
 
-                if (result.result === 'APPROVED') {
-                    showResult('success', 
-                        '<div class="response-title" style="color: #28a745;">✓ Payment Approved!</div>' +
-                        '<strong>Transaction ID:</strong> ' + (result.transactionId || 'N/A') + '<br>' +
-                        '<strong>Order ID:</strong> ' + (result.orderId || 'N/A') + '<br>' +
-                        '<strong>User Payment Option ID:</strong> ' + (result.userPaymentOptionId || 'N/A') + '<br>' +
-                        '<strong>Card Number:</strong> ' + (result.ccCardNumber || 'N/A') + '<br>' +
-                        '<strong>Auth Code:</strong> ' + (result.authCode || 'N/A') + '<br>' +
-                        '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
-                    );
-                } else if (result.result === 'DECLINED') {
-                    showResult('error', 
-                        '<div class="response-title" style="color: #dc3545;">✗ Payment Declined</div>' +
-                        '<strong>Status:</strong> ' + result.result + '<br>' +
-                        '<strong>Error Code:</strong> ' + (result.errCode || 'N/A') + '<br>' +
-                        '<strong>Reason:</strong> ' + (result.errorDescription || 'Payment was declined') + '<br>' +
-                        '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
-                    );
-                } else if (result.result === 'ERROR') {
-                    showResult('error', 
-                        '<div class="response-title" style="color: #dc3545;">✗ Payment Error</div>' +
-                        '<strong>Error Code:</strong> ' + (result.errCode || 'N/A') + '<br>' +
-                        '<strong>Description:</strong> ' + (result.errorDescription || 'An error occurred') + '<br>' +
-                        '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
-                    );
-                } else {
-                    showResult('error', 
-                        '<div class="response-title" style="color: #dc3545;">✗ Unknown Result</div>' +
-                        '<strong>Status:</strong> ' + (result.result || 'UNKNOWN') + '<br>' +
-                        '<div class="response-data">' + JSON.stringify(result, null, 2) + '</div>'
-                    );
-                }
-            };
+<script>
+  function showStatus(msg, type = 'info') {
+    const box = document.getElementById('statusBox');
+    box.textContent = msg;
+    box.className = `status-box show ${type}`;
+  }
 
-            // Initialize checkout
-            try {
-                checkout({
-                    env: env,
-                    renderTo: '#checkoutContainer',
-                    sessionToken: sessionToken,
-                    merchantSiteId: merchantSiteId,
-                    merchantId: merchantId,
-                    currency: currency,
-                    amount: parseFloat(amount),
-                    country: country,
-                    locale: 'en',
-                    fullName: fullName,
-                    email: email,
-                    onResult: onResult,
-                    payButton: 'amountButton',
-                    showResponseMessage: true,
-                    autoOpenPM: true,
-                    alwaysCollectCvv: false,
-                    logLevel: 0
-                });
+  function launchCheckout() {
+    const merchantId     = document.getElementById('merchantId').value.trim();
+    const merchantSiteId = document.getElementById('merchantSiteId').value.trim();
+    const sessionToken   = document.getElementById('sessionToken').value.trim();
+    const amount         = parseFloat(document.getElementById('amount').value);
+    const currency       = document.getElementById('currency').value;
+    const fullName       = document.getElementById('fullName').value.trim();
+    const email          = document.getElementById('email').value.trim();
+    const country        = document.getElementById('country').value;
+    const env            = document.getElementById('env').value;
 
-                // Re-enable button after initialization
-                setTimeout(function() {
-                    document.getElementById('initBtn').disabled = false;
-                    document.getElementById('initBtn').textContent = 'Initialize Checkout';
-                }, 1000);
+    // Basic validation
+    if (!merchantId || !merchantSiteId) {
+      showStatus('⚠️ Please enter your Merchant ID and Merchant Site ID.', 'error');
+      return;
+    }
+    if (!sessionToken) {
+      showStatus('⚠️ Please paste your sessionToken from an /openOrder response.', 'error');
+      return;
+    }
+    if (!amount || amount <= 0) {
+      showStatus('⚠️ Please enter a valid amount.', 'error');
+      return;
+    }
 
-            } catch (error) {
-                console.error('Checkout Error:', error);
-                document.getElementById('initBtn').disabled = false;
-                document.getElementById('initBtn').textContent = 'Initialize Checkout';
-                document.getElementById('checkoutContainer').innerHTML = '';
-                
-                showResult('error', 
-                    '<div class="response-title" style="color: #dc3545;">✗ Initialization Failed</div>' +
-                    '<strong>Error:</strong> ' + error.message + '<br>' +
-                    'Please check your configuration and try again.'
-                );
-            }
-        });
+    showStatus('⏳ Launching Simply Connect...', 'info');
 
-        function showResult(type, message) {
-            const resultBox = document.getElementById('resultBox');
-            resultBox.className = 'result-box ' + type;
-            resultBox.innerHTML = message;
-            resultBox.style.display = 'block';
-            resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const checkoutEl = document.getElementById('checkout');
+    checkoutEl.innerHTML = '';
+    checkoutEl.classList.add('active');
+    document.getElementById('result-area').classList.remove('show');
+
+    try {
+      checkout({
+        sessionToken:   sessionToken,
+        env:            env,
+        merchantSiteId: merchantSiteId,
+        merchantId:     merchantId,
+        currency:       currency,
+        amount:         amount,
+        country:        country,
+        locale:         'en_US',
+        fullName:       fullName,
+        email:          email,
+        billingAddress: {
+          email:   email,
+          country: country
+        },
+        renderTo: '#checkout',
+        onResult: function(result) {
+          console.log('Simply Connect Result:', result);
+
+          const status = result.result || result.transactionStatus || 'UNKNOWN';
+          if (status === 'APPROVED') {
+            showStatus('✅ Payment Approved!', 'success');
+          } else if (status === 'DECLINED') {
+            showStatus('❌ Payment Declined: ' + (result.errorDescription || ''), 'error');
+          } else if (result.cancelled) {
+            showStatus('🚫 Payment Cancelled by user.', 'info');
+          } else {
+            showStatus('⚠️ Payment result: ' + status, 'info');
+          }
+
+          // Show raw result
+          document.getElementById('result-json').textContent = JSON.stringify(result, null, 2);
+          document.getElementById('result-area').classList.add('show');
         }
-
-        // Pre-fill from URL parameters
-        window.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('sessionToken')) document.getElementById('session').value = urlParams.get('sessionToken');
-            if (urlParams.get('merchantId')) document.getElementById('merchantId').value = urlParams.get('merchantId');
-            if (urlParams.get('merchantSiteId')) document.getElementById('merchantSiteId').value = urlParams.get('merchantSiteId');
-            if (urlParams.get('env')) document.getElementById('env').value = urlParams.get('env');
-            if (urlParams.get('amount')) document.getElementById('amount').value = urlParams.get('amount');
-            if (urlParams.get('currency')) document.getElementById('currency').value = urlParams.get('currency');
-            if (urlParams.get('email')) document.getElementById('email').value = urlParams.get('email');
-        });
-    </script>
+      });
+      showStatus('✅ Simply Connect launched! Complete payment in the form →', 'success');
+    } catch (err) {
+      showStatus('❌ Error launching checkout: ' + err.message, 'error');
+      checkoutEl.innerHTML = '<div style="color:#dc3545">Failed to load Simply Connect.<br/>Check console for details.</div>';
+      console.error(err);
+    }
+  }
+</script>
 </body>
 </html>
