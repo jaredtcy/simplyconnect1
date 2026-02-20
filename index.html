@@ -230,7 +230,7 @@
     <label>Customer Email</label>
     <input id="email" type="email" value="[email protected]" />
 
-    <label>Country</label>
+    <label>Country (Payment Optimization)</label>
     <select id="country">
       <option value="US">United States (US)</option>
       <option value="GB">United Kingdom (GB)</option>
@@ -239,6 +239,43 @@
       <option value="AU">Australia (AU)</option>
       <option value="CA">Canada (CA)</option>
     </select>
+
+    <hr />
+    <div class="section-title">Billing Address</div>
+
+    <label>Billing Country</label>
+    <select id="billingCountry">
+      <option value="US">United States (US)</option>
+      <option value="GB">United Kingdom (GB)</option>
+      <option value="DE">Germany (DE)</option>
+      <option value="SG">Singapore (SG)</option>
+      <option value="AU">Australia (AU)</option>
+      <option value="CA">Canada (CA)</option>
+      <option value="FR">France (FR)</option>
+      <option value="NL">Netherlands (NL)</option>
+      <option value="JP">Japan (JP)</option>
+      <option value="IN">India (IN)</option>
+      <option value="BR">Brazil (BR)</option>
+      <option value="MX">Mexico (MX)</option>
+      <option value="ZA">South Africa (ZA)</option>
+    </select>
+
+    <label>Address Line</label>
+    <input id="billingAddress" type="text" placeholder="e.g. 123 Main Street" />
+
+    <div class="row">
+      <div>
+        <label>City</label>
+        <input id="billingCity" type="text" placeholder="e.g. New York" />
+      </div>
+      <div>
+        <label>State / Region</label>
+        <input id="billingState" type="text" placeholder="e.g. NY" />
+      </div>
+    </div>
+
+    <label>ZIP / Postal Code</label>
+    <input id="billingZip" type="text" placeholder="e.g. 10001" />
 
     <label>Environment</label>
     <select id="env">
@@ -324,7 +361,11 @@
         email:          email,
         billingAddress: {
           email:   email,
-          country: country
+          country: document.getElementById('billingCountry').value,
+          address: document.getElementById('billingAddress').value.trim() || undefined,
+          city:    document.getElementById('billingCity').value.trim() || undefined,
+          state:   document.getElementById('billingState').value.trim() || undefined,
+          zip:     document.getElementById('billingZip').value.trim() || undefined,
         },
         renderTo: '#checkout',
         onResult: function(result) {
