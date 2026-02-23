@@ -220,7 +220,6 @@
           <option value="CAD">CAD</option>
           <option value="AUD">AUD</option>
           <option value="SGD">SGD</option>
-          <option value="BRL">BRL</option>
         </select>
       </div>
     </div>
@@ -239,7 +238,6 @@
       <option value="SG">Singapore (SG)</option>
       <option value="AU">Australia (AU)</option>
       <option value="CA">Canada (CA)</option>
-      <option value="BR">Brazil (BR)</option>
     </select>
 
     <hr />
@@ -368,6 +366,14 @@
           city:    document.getElementById('billingCity').value.trim() || undefined,
           state:   document.getElementById('billingState').value.trim() || undefined,
           zip:     document.getElementById('billingZip').value.trim() || undefined,
+        },
+        apmConfig: {
+          "apmgw_PIX": {
+            fields: {
+              pix_key: "hidden",
+              nationalId: { label: "CPF" }
+            }
+          }
         },
         renderTo: '#checkout',
         onResult: function(result) {
