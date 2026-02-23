@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nuvei Simply Connect Demo</title>
-  <!-- Simply Connect JS library -->
   <script src="https://cdn.safecharge.com/safecharge_resources/v1/checkout/checkout.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,204 +11,205 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #f0f2f5;
       min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
+      display: flex; align-items: flex-start; justify-content: center;
       padding: 40px 16px;
     }
-    .page {
-      width: 100%;
-      max-width: 900px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    @media (max-width: 680px) {
-      .page { grid-template-columns: 1fr; }
-    }
 
-    /* --- Left Panel: Order Config --- */
-    .config-panel {
+    /* ── Page Layout ───────────────────────────────── */
+    .page {
+      width: 100%; max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+    }
+    @media (max-width: 760px) { .page { grid-template-columns: 1fr; } }
+
+    /* ── Panels ────────────────────────────────────── */
+    .panel {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 14px rgba(0,0,0,0.08);
     }
-    .config-panel h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a2e;
-      margin-bottom: 6px;
-    }
-    .config-panel .subtitle {
-      font-size: 13px;
-      color: #888;
-      margin-bottom: 24px;
-    }
+    h2 { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #999; margin-bottom: 22px; }
     .badge {
       display: inline-block;
-      background: #fff3cd;
-      color: #856404;
+      background: #fff3cd; color: #856404;
       border: 1px solid #ffc107;
-      border-radius: 6px;
-      font-size: 11px;
-      padding: 3px 8px;
-      margin-bottom: 20px;
-      font-weight: 600;
+      border-radius: 6px; font-size: 11px;
+      padding: 3px 8px; margin-bottom: 18px; font-weight: 600;
     }
     label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #555;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
+      display: block; font-size: 12px; font-weight: 600;
+      color: #666; margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: 0.4px;
     }
     input, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
-      background: #fafafa;
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid #e0e0e0; border-radius: 8px;
+      font-size: 14px; color: #333; margin-bottom: 14px;
+      transition: border-color 0.2s; background: #fafafa;
     }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #6c63ff;
-      background: #fff;
-    }
+    input:focus, select:focus { outline: none; border-color: #6c63ff; background: #fff; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    .btn-pay {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #6c63ff, #48c6ef);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      margin-top: 4px;
+    hr { border: none; border-top: 1px solid #f0f0f0; margin: 14px 0; }
+    .section-title {
+      font-size: 11px; font-weight: 700; color: #bbb;
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;
     }
-    .btn-pay:hover { opacity: 0.92; transform: translateY(-1px); }
-    .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
+    .btn-launch {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #6c63ff, #48c6ef);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s; margin-top: 4px;
+    }
+    .btn-launch:hover { opacity: 0.92; transform: translateY(-1px); }
     .status-box {
-      margin-top: 16px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      display: none;
+      margin-top: 14px; padding: 11px 13px;
+      border-radius: 8px; font-size: 13px; display: none;
     }
     .status-box.info    { background:#e8f4fd; color:#0c5460; border:1px solid #bee5eb; }
     .status-box.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
     .status-box.error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
     .status-box.show    { display: block; }
 
-    /* --- Right Panel: Checkout Container --- */
-    .checkout-panel {
-      background: #fff;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
-    .checkout-panel h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a2e;
-      margin-bottom: 6px;
-    }
-    .checkout-panel .subtitle {
-      font-size: 13px;
-      color: #888;
-      margin-bottom: 20px;
-    }
-    #checkout {
-      width: 100%;
-      min-height: 480px;
-      border: 2px dashed #e0e0e0;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #bbb;
-      font-size: 14px;
-      text-align: center;
-      padding: 20px;
-      transition: border-color 0.3s;
-    }
-    #checkout.active {
-      border-color: #6c63ff;
-      border-style: solid;
+    /* ── Right Panel: Checkout wrapper ─────────────── */
+    .checkout-wrapper {
+      display: flex; flex-direction: column; gap: 0;
     }
 
-    /* Result display */
-    #result-area {
-      margin-top: 16px;
-      display: none;
+    /* Contact & Billing section above Simply Connect */
+    .pre-checkout {
+      border: 1.5px solid #e8e8e8;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+      padding: 20px 20px 4px;
+      background: #fff;
     }
+    .pre-checkout h3 {
+      font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px;
+    }
+    .pre-checkout label {
+      font-size: 12px; font-weight: 600; color: #666;
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .pre-checkout input,
+    .pre-checkout select {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid #e0e0e0; border-radius: 8px;
+      font-size: 14px; color: #333; margin-bottom: 14px;
+      background: #fafafa; transition: border-color 0.2s;
+    }
+    .pre-checkout input:focus,
+    .pre-checkout select:focus { outline: none; border-color: #6c63ff; background: #fff; }
+
+    .section-divider {
+      font-size: 11px; font-weight: 700; color: #bbb;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 12px; margin-top: 4px;
+    }
+
+    /* Saved profiles row */
+    .profile-row {
+      display: flex; gap: 8px; align-items: center; margin-bottom: 14px;
+    }
+    .profile-row select { margin-bottom: 0; flex: 1; font-size: 13px; }
+    .btn-xs {
+      padding: 7px 10px; font-size: 12px; font-weight: 600;
+      border: none; border-radius: 6px; cursor: pointer;
+      white-space: nowrap; transition: opacity 0.2s;
+    }
+    .btn-xs:hover { opacity: 0.85; }
+    .btn-save-sm   { background: #ede9ff; color: #6c63ff; }
+    .btn-delete-sm { background: #fee2e2; color: #dc2626; }
+    .btn-delete-sm:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Simply Connect container — seamlessly attached below */
+    #checkout-container {
+      border: 1.5px solid #e8e8e8;
+      border-radius: 0 0 12px 12px;
+      background: #fff;
+      min-height: 260px;
+      overflow: hidden;
+    }
+    #checkout-container.empty {
+      display: flex; align-items: center; justify-content: center;
+      color: #ccc; font-size: 14px; text-align: center;
+      padding: 40px;
+    }
+
+    /* Result */
+    #result-area { margin-top: 14px; display: none; }
     #result-area.show { display: block; }
     #result-area pre {
-      background: #1e1e2e;
-      color: #cdd6f4;
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 11px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
+      background: #1e1e2e; color: #cdd6f4;
+      border-radius: 8px; padding: 14px;
+      font-size: 11px; overflow-x: auto;
+      white-space: pre-wrap; word-break: break-all;
     }
-    .result-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #555;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
+    .result-label { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 6px; text-transform: uppercase; }
 
-    hr { border: none; border-top: 1px solid #f0f0f0; margin: 16px 0; }
-    .section-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 12px;
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4); z-index: 100;
+      align-items: center; justify-content: center;
     }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; padding: 24px; width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .modal p  { font-size: 13px; color: #888; margin-bottom: 14px; }
+    .modal input { margin-bottom: 0; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-confirm { flex:1; padding:10px; background:#6c63ff; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; }
+    .btn-cancel  { flex:1; padding:10px; background:#f0f0f0; color:#555; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+
+    .highlight { border-color: #6c63ff !important; background: #f7f5ff !important; }
   </style>
 </head>
 <body>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>Save Billing Profile</h3>
+    <p>Name this billing address for quick reuse.</p>
+    <label>Profile Name</label>
+    <input id="profileNameInput" type="text" placeholder="e.g. Home, Work, Brazil" maxlength="40"/>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmSave()">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="page">
 
-  <!-- LEFT: Config Panel -->
-  <div class="config-panel">
+  <!-- LEFT: Config -->
+  <div class="panel">
     <h2>Order Configuration</h2>
-    <p class="subtitle">Fill in your credentials and order details, then click Pay.</p>
-    <div class="badge">⚠️ Use sandbox credentials only – never expose live secret keys</div>
+    <p class="subtitle">Credentials and order details.</p>
+    <div class="badge">⚠️ Sandbox credentials only — never expose secret keys client-side</div>
 
     <div class="section-title">Merchant Credentials</div>
     <label>Merchant ID</label>
-    <input id="merchantId" type="text" placeholder="e.g. 427583496191624621" />
-
+    <input id="merchantId" type="text" placeholder="e.g. 427583496191624621"/>
     <label>Merchant Site ID</label>
-    <input id="merchantSiteId" type="text" placeholder="e.g. 142033" />
-
+    <input id="merchantSiteId" type="text" placeholder="e.g. 142033"/>
     <label>Session Token</label>
-    <input id="sessionToken" type="text" placeholder="Paste token from /openOrder response" />
+    <input id="sessionToken" type="text" placeholder="Paste from /openOrder response"/>
 
-    <hr />
+    <hr/>
     <div class="section-title">Order Details</div>
-
     <div class="row">
       <div>
         <label>Amount</label>
-        <input id="amount" type="number" value="10.00" step="0.01" min="0.01" />
+        <input id="amount" type="number" value="10.00" step="0.01" min="0.01"/>
       </div>
       <div>
         <label>Currency</label>
@@ -225,12 +225,6 @@
       </div>
     </div>
 
-    <label>Customer Name</label>
-    <input id="fullName" type="text" value="John Doe" />
-
-    <label>Customer Email</label>
-    <input id="email" type="email" value="[email protected]" />
-
     <label>Country (Payment Optimization)</label>
     <select id="country">
       <option value="US">United States (US)</option>
@@ -242,66 +236,83 @@
       <option value="BR">Brazil (BR)</option>
     </select>
 
-    <hr />
-    <div class="section-title">Billing Address</div>
-
-    <label>Billing Country</label>
-    <select id="billingCountry">
-      <option value="US">United States (US)</option>
-      <option value="GB">United Kingdom (GB)</option>
-      <option value="DE">Germany (DE)</option>
-      <option value="SG">Singapore (SG)</option>
-      <option value="AU">Australia (AU)</option>
-      <option value="CA">Canada (CA)</option>
-      <option value="FR">France (FR)</option>
-      <option value="NL">Netherlands (NL)</option>
-      <option value="JP">Japan (JP)</option>
-      <option value="IN">India (IN)</option>
-      <option value="BR">Brazil (BR)</option>
-      <option value="MX">Mexico (MX)</option>
-      <option value="ZA">South Africa (ZA)</option>
-    </select>
-
-    <label>Address Line</label>
-    <input id="billingAddress" type="text" placeholder="e.g. 123 Main Street" />
-
-    <div class="row">
-      <div>
-        <label>City</label>
-        <input id="billingCity" type="text" placeholder="e.g. New York" />
-      </div>
-      <div>
-        <label>State / Region</label>
-        <input id="billingState" type="text" placeholder="e.g. NY" />
-      </div>
-    </div>
-
-    <label>ZIP / Postal Code</label>
-    <input id="billingZip" type="text" placeholder="e.g. 10001" />
-
     <label>Environment</label>
     <select id="env">
       <option value="int">Integration / Sandbox (int)</option>
       <option value="prod">Production (prod)</option>
     </select>
 
-    <button class="btn-pay" id="payBtn" onclick="launchCheckout()">
-      🚀 Launch Simply Connect
-    </button>
-
+    <button class="btn-launch" onclick="launchCheckout()">🚀 Launch Simply Connect</button>
     <div class="status-box" id="statusBox"></div>
   </div>
 
-  <!-- RIGHT: Checkout Panel -->
-  <div class="checkout-panel">
-    <h2>Payment Form</h2>
-    <p class="subtitle">The Simply Connect UI will render here after clicking Launch.</p>
-    <div id="checkout">
-      <div>
-        <div style="font-size:40px;margin-bottom:12px;">💳</div>
-        <div>Simply Connect will<br/>render here</div>
+  <!-- RIGHT: Roblox-style checkout -->
+  <div>
+    <div class="checkout-wrapper">
+
+      <!-- Contact + Billing above Simply Connect -->
+      <div class="pre-checkout">
+        <h3>Contact Information</h3>
+        <label>Full Name</label>
+        <input id="fullName" type="text" value="John Doe"/>
+        <label>Email</label>
+        <input id="email" type="email" value="[email protected]"/>
+
+        <div class="section-divider">Billing Information</div>
+
+        <!-- Saved profiles -->
+        <div class="profile-row">
+          <select id="profileSelect" onchange="loadProfile()" title="Saved billing profiles">
+            <option value="">— Saved profiles —</option>
+          </select>
+          <button class="btn-xs btn-save-sm" onclick="openModal()" title="Save current billing">+ Save</button>
+          <button class="btn-xs btn-delete-sm" id="deleteBtn" onclick="deleteProfile()" disabled title="Delete selected profile">🗑</button>
+        </div>
+
+        <label>Country / Region <span style="color:#dc2626">*</span></label>
+        <select id="billingCountry">
+          <option value="US">United States</option>
+          <option value="GB">United Kingdom</option>
+          <option value="DE">Germany</option>
+          <option value="SG">Singapore</option>
+          <option value="AU">Australia</option>
+          <option value="CA">Canada</option>
+          <option value="FR">France</option>
+          <option value="NL">Netherlands</option>
+          <option value="JP">Japan</option>
+          <option value="IN">India</option>
+          <option value="BR">Brazil</option>
+          <option value="MX">Mexico</option>
+          <option value="ZA">South Africa</option>
+        </select>
+
+        <label>Address</label>
+        <input id="billingAddress" type="text" placeholder="123 Main Street"/>
+        <div class="row">
+          <div>
+            <label>City</label>
+            <input id="billingCity" type="text" placeholder="New York"/>
+          </div>
+          <div>
+            <label>State / Region</label>
+            <input id="billingState" type="text" placeholder="NY"/>
+          </div>
+        </div>
+        <label>ZIP / Postal Code</label>
+        <input id="billingZip" type="text" placeholder="10001"/>
       </div>
+
+      <!-- Simply Connect renders here, seamlessly attached -->
+      <div id="checkout-container" class="empty">
+        <div>
+          <div style="font-size:36px;margin-bottom:10px">💳</div>
+          <div>Payment form loads here<br/>after clicking Launch →</div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- Result -->
     <div id="result-area">
       <div class="result-label">Payment Result</div>
       <pre id="result-json"></pre>
@@ -311,10 +322,82 @@
 </div>
 
 <script>
+  // ── Profiles ──────────────────────────────────────────
+  const STORAGE_KEY = 'nuvei_billing_v2';
+  const profileFields = ['billingCountry','billingAddress','billingCity','billingState','billingZip'];
+
+  function getProfiles() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+  }
+  function saveProfiles(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+
+  function renderDropdown(selectName) {
+    const profiles = getProfiles();
+    const sel = document.getElementById('profileSelect');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— Saved profiles —</option>';
+    Object.keys(profiles).forEach(name => {
+      const o = document.createElement('option');
+      o.value = name; o.textContent = name;
+      if (name === (selectName || cur)) o.selected = true;
+      sel.appendChild(o);
+    });
+    document.getElementById('deleteBtn').disabled = !sel.value;
+  }
+
+  function loadProfile() {
+    const name = document.getElementById('profileSelect').value;
+    document.getElementById('deleteBtn').disabled = !name;
+    if (!name) return;
+    const p = getProfiles()[name];
+    if (!p) return;
+    profileFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (p[id] !== undefined) {
+        el.value = p[id];
+        el.classList.add('highlight');
+        setTimeout(() => el.classList.remove('highlight'), 900);
+      }
+    });
+    showStatus(`✅ Profile "${name}" loaded.`, 'success');
+  }
+
+  function deleteProfile() {
+    const name = document.getElementById('profileSelect').value;
+    if (!name || !confirm(`Delete "${name}"?`)) return;
+    const profiles = getProfiles();
+    delete profiles[name];
+    saveProfiles(profiles);
+    renderDropdown('');
+    showStatus(`🗑️ Profile "${name}" deleted.`, 'info');
+  }
+
+  function openModal() {
+    document.getElementById('profileNameInput').value = '';
+    document.getElementById('modalOverlay').classList.add('show');
+    setTimeout(() => document.getElementById('profileNameInput').focus(), 80);
+  }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+  function confirmSave() {
+    const name = document.getElementById('profileNameInput').value.trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    const profiles = getProfiles();
+    profiles[name] = {};
+    profileFields.forEach(id => profiles[name][id] = document.getElementById(id).value.trim());
+    saveProfiles(profiles);
+    renderDropdown(name);
+    closeModal();
+    showStatus(`✅ Profile "${name}" saved!`, 'success');
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('profileNameInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmSave(); });
+
+  // ── Checkout ──────────────────────────────────────────
   function showStatus(msg, type = 'info') {
-    const box = document.getElementById('statusBox');
-    box.textContent = msg;
-    box.className = `status-box show ${type}`;
+    const b = document.getElementById('statusBox');
+    b.textContent = msg; b.className = `status-box show ${type}`;
   }
 
   function launchCheckout() {
@@ -327,82 +410,96 @@
     const email          = document.getElementById('email').value.trim();
     const country        = document.getElementById('country').value;
     const env            = document.getElementById('env').value;
+    const billingCountry = document.getElementById('billingCountry').value;
 
-    // Basic validation
-    if (!merchantId || !merchantSiteId) {
-      showStatus('⚠️ Please enter your Merchant ID and Merchant Site ID.', 'error');
-      return;
-    }
-    if (!sessionToken) {
-      showStatus('⚠️ Please paste your sessionToken from an /openOrder response.', 'error');
-      return;
-    }
-    if (!amount || amount <= 0) {
-      showStatus('⚠️ Please enter a valid amount.', 'error');
-      return;
-    }
+    if (!merchantId || !merchantSiteId) { showStatus('⚠️ Enter Merchant ID and Site ID.', 'error'); return; }
+    if (!sessionToken)                  { showStatus('⚠️ Paste your sessionToken.', 'error'); return; }
+    if (!amount || amount <= 0)         { showStatus('⚠️ Enter a valid amount.', 'error'); return; }
 
     showStatus('⏳ Launching Simply Connect...', 'info');
 
-    const checkoutEl = document.getElementById('checkout');
-    checkoutEl.innerHTML = '';
-    checkoutEl.classList.add('active');
+    const container = document.getElementById('checkout-container');
+    container.classList.remove('empty');
+    container.innerHTML = '';
     document.getElementById('result-area').classList.remove('show');
+
+    // Temporarily add renderTo id
+    container.id = 'checkout-container';
 
     try {
       checkout({
-        sessionToken:   sessionToken,
-        env:            env,
-        merchantSiteId: merchantSiteId,
-        merchantId:     merchantId,
-        currency:       currency,
-        amount:         amount,
-        country:        country,
-        locale:         'en_US',
-        fullName:       fullName,
-        email:          email,
+        sessionToken,
+        env,
+        merchantSiteId,
+        merchantId,
+        currency,
+        amount,
+        country,
+        locale: 'en_US',
+        fullName,
+        email,
         billingAddress: {
-          email:   email,
-          country: document.getElementById('billingCountry').value,
-          address: document.getElementById('billingAddress').value.trim() || undefined,
-          city:    document.getElementById('billingCity').value.trim() || undefined,
-          state:   document.getElementById('billingState').value.trim() || undefined,
-          zip:     document.getElementById('billingZip').value.trim() || undefined,
+          email,
+          country:  billingCountry,
+          address:  document.getElementById('billingAddress').value.trim() || undefined,
+          city:     document.getElementById('billingCity').value.trim()    || undefined,
+          state:    document.getElementById('billingState').value.trim()   || undefined,
+          zip:      document.getElementById('billingZip').value.trim()     || undefined,
+        },
+        i18n: {
+          // Country-aware personal ID labels (built into Simply connect i18n)
+          BR_personal_id: "CPF / CNPJ",
+          MX_personal_id: "CURP / RFC",
+          CL_personal_id: "RUN / RUT",
+          PE_personal_id: "DNI",
+          AR_personal_id: "DNI / CUIT",
+          CO_personal_id: "CC",
+          personal_id:    "Personal ID",
         },
         apmConfig: {
           "apmgw_PIX": {
             fields: {
-              pix_key: "hidden"
+              pix_key:     "hidden",
+              personal_id: { label: "CPF", caption: "CPF" }
             }
           }
         },
-        renderTo: '#checkout',
-        onResult: function(result) {
+        renderTo: '#checkout-container',
+        onResult(result) {
           console.log('Simply Connect Result:', result);
-
           const status = result.result || result.transactionStatus || 'UNKNOWN';
-          if (status === 'APPROVED') {
-            showStatus('✅ Payment Approved!', 'success');
-          } else if (status === 'DECLINED') {
-            showStatus('❌ Payment Declined: ' + (result.errorDescription || ''), 'error');
-          } else if (result.cancelled) {
-            showStatus('🚫 Payment Cancelled by user.', 'info');
-          } else {
-            showStatus('⚠️ Payment result: ' + status, 'info');
-          }
-
-          // Show raw result
+          if (status === 'APPROVED')      showStatus('✅ Payment Approved!', 'success');
+          else if (status === 'DECLINED') showStatus('❌ Declined: ' + (result.errorDescription || ''), 'error');
+          else if (result.cancelled)      showStatus('🚫 Cancelled by user.', 'info');
+          else                            showStatus('⚠️ Result: ' + status, 'info');
           document.getElementById('result-json').textContent = JSON.stringify(result, null, 2);
           document.getElementById('result-area').classList.add('show');
         }
       });
-      showStatus('✅ Simply Connect launched! Complete payment in the form →', 'success');
+      showStatus('✅ Simply Connect launched!', 'success');
+      startLabelObserver();
     } catch (err) {
-      showStatus('❌ Error launching checkout: ' + err.message, 'error');
-      checkoutEl.innerHTML = '<div style="color:#dc3545">Failed to load Simply Connect.<br/>Check console for details.</div>';
+      showStatus('❌ ' + err.message, 'error');
+      container.classList.add('empty');
+      container.innerHTML = '<div style="color:#dc3545">Failed to load. Check console.</div>';
       console.error(err);
     }
   }
+
+  function startLabelObserver() {
+    const target = document.getElementById('checkout-container');
+    new MutationObserver(() => {
+      target.querySelectorAll('label, span, div').forEach(el => {
+        if (el.childNodes.length === 1 &&
+            el.childNodes[0].nodeType === Node.TEXT_NODE &&
+            el.childNodes[0].textContent.trim() === 'Personal ID') {
+          el.childNodes[0].textContent = 'CPF';
+        }
+      });
+    }).observe(target, { childList: true, subtree: true, characterData: true });
+  }
+
+  renderDropdown();
 </script>
 </body>
 </html>
