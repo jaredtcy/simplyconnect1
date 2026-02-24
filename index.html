@@ -460,7 +460,7 @@
           "apmgw_PIX": {
             fields: {
               pix_key:     "hidden",
-              BR_personal_id: { label: "CPF", caption: "CPF" }
+              personal_id: { label: "CPF", caption: "CPF" }
             }
           }
         },
@@ -477,26 +477,12 @@
         }
       });
       showStatus('✅ Simply Connect launched!', 'success');
-      startLabelObserver();
     } catch (err) {
       showStatus('❌ ' + err.message, 'error');
       container.classList.add('empty');
       container.innerHTML = '<div style="color:#dc3545">Failed to load. Check console.</div>';
       console.error(err);
     }
-  }
-
-  function startLabelObserver() {
-    const target = document.getElementById('checkout-container');
-    new MutationObserver(() => {
-      target.querySelectorAll('label, span, div').forEach(el => {
-        if (el.childNodes.length === 1 &&
-            el.childNodes[0].nodeType === Node.TEXT_NODE &&
-            el.childNodes[0].textContent.trim() === 'Personal ID') {
-          el.childNodes[0].textContent = 'CPF';
-        }
-      });
-    }).observe(target, { childList: true, subtree: true, characterData: true });
   }
 
   renderDropdown();
